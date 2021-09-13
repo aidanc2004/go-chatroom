@@ -8,7 +8,7 @@ import (
 
 const (
     HOST = "localhost"
-    PORT = "59090"
+    PORT = "59091"
 )
 
 func main() {
@@ -33,11 +33,13 @@ func main() {
 }
 
 func handleConnection(conn net.Conn) {
-    _, err := conn.Write([]byte("Hello! :)\n"))
-    if err != nil {
-        fmt.Println("Error sending:", err.Error())
-        os.Exit(1)
-    }
+    name := make([]byte, 20)
+
+    conn.Write([]byte("Please enter your name: "))
     
+    conn.Read(name)
+
+    conn.Write([]byte("Hello, " + string(name)))
+
     conn.Close()
 }
