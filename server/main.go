@@ -13,6 +13,13 @@ const (
     port = "59090"
 )
 
+type client struct {
+    conn net.Conn
+    nick string
+}
+
+var clients = make([]client, 0)
+
 func main() {
     ln, err := net.Listen("tcp", host+":"+port)
     if err != nil {
@@ -29,19 +36,33 @@ func main() {
             fmt.Println("Error accepting:", err.Error())
             os.Exit(1)
         }
+        
+        cl := client {conn, "nick"}
 
-        go handleConnection(conn)
+        clients = append(clients, cl)
+        
+        go handleConnection(cl)
     }
 }
 
-func handleConnection(conn net.Conn) {
-    conn.Write([]byte("Please enter your name: "))
+func handleConnection(cl client) {
+    cl.conn.Write([]byte("Please enter your name: "))
     
-    name, _ := bufio.NewReader(conn).ReadString('\n') 
+    name, _ := bufio.NewReader(cl.conn).ReadString('\n') 
 
     name = strings.TrimSuffix(name, "\r\n")
     
-    conn.Write([]byte("Hello, " + name + ", how are you?\n"))
+    cl.conn.Write([]byte("Hello, " + name + ", how are you?\n"))
+    
+    cl.conn.Close()
 
-    conn.Close()
+    removeClient(cl)
+}
+
+func removeClient(cl client) {
+    for i, v := range clients {
+        if v == cl {
+	        clients = append(clients[:i], clients[i+1:]...)
+        }
+    }
 }
