@@ -7,12 +7,12 @@ import (
 )
 
 const (
-    HOST = "localhost"
-    PORT = "59091"
+    host = "localhost"
+    port = "59091"
 )
 
 func main() {
-    ln, err := net.Listen("tcp", HOST+":"+PORT)
+    ln, err := net.Listen("tcp", host+":"+port)
     if err != nil {
         fmt.Println("Error listening:", err.Error())
         os.Exit(1)
