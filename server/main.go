@@ -4,6 +4,8 @@ import (
     "fmt"
     "net"
     "os"
+    "bufio"
+    "strings"
 )
 
 const (
@@ -33,13 +35,13 @@ func main() {
 }
 
 func handleConnection(conn net.Conn) {
-    name := make([]byte, 20)
-
     conn.Write([]byte("Please enter your name: "))
     
-    conn.Read(name)
+    name, _ := bufio.NewReader(conn).ReadString('\n') 
 
-    conn.Write([]byte("Hello, " + string(name)))
+    name = strings.TrimSuffix(name, "\r\n")
+    
+    conn.Write([]byte("Hello, " + name + ", how are you?\n"))
 
     conn.Close()
 }
