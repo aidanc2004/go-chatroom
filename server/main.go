@@ -39,31 +39,29 @@ func main() {
             os.Exit(1)
         }
         
-        cl := client {conn, "nick"} // create new client struct for connection
-
-        clients = append(clients, cl) // add client to slice of all clients
-        
-        go handleConnection(cl)
+        go handleConnection(conn)
     }
 }
 
-func handleConnection(cl client) {
+func handleConnection(conn net.Conn) {
     // get name from client
-    cl.conn.Write([]byte("Please enter your name: "))
+    conn.Write([]byte("Please enter your name: "))
     
-    name, _ := bufio.NewReader(cl.conn).ReadString('\n')
-
+    name, _ := bufio.NewReader(conn).ReadString('\n')
     name = strings.TrimSuffix(name, "\r\n")
     
-    cl.conn.Write([]byte("Hello, " + name + ", how are you?\n"))
+    conn.Write([]byte("Hello, " + name + ", how are you?\n"))
     
-    // TODO: update name in array
-
-    cl.conn.Close()
-
+    cl := client {conn, name} // create new client struct for connection
+    
+    clients = append(clients, cl) // add client to slice of all clients
+    
+    // Close connection and remove client from slice
+    conn.Close()
     removeClient(cl)
 }
 
+// remove a client from clients slice
 func removeClient(cl client) {
     for i, v := range clients {
         if v == cl {
