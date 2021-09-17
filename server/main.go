@@ -45,7 +45,7 @@ func main() {
 
 func handleConnection(conn net.Conn) {
     // get name from client
-    conn.Write([]byte("Please enter your name: "))
+    conn.Write([]byte("\nPlease enter your name: "))
     
     name, _ := bufio.NewReader(conn).ReadString('\n')
     name = strings.TrimSuffix(name, "\r\n")
