@@ -15,7 +15,7 @@ const (
 
 type client struct {
     conn net.Conn
-    nick string
+    name string
 }
 
 var clients = make([]client, 0) // slice of all connected clients
@@ -50,15 +50,39 @@ func handleConnection(conn net.Conn) {
     name, _ := bufio.NewReader(conn).ReadString('\n')
     name = strings.TrimSuffix(name, "\r\n")
     
-    conn.Write([]byte("Hello, " + name + ", how are you?\n"))
-    
     cl := client {conn, name} // create new client struct for connection
     
     clients = append(clients, cl) // add client to slice of all clients
     
+    recieveMessages(cl)
+
     // Close connection and remove client from slice
     conn.Close()
     removeClient(cl)
+}
+
+// recieve messages from client
+func recieveMessages(cl client) {
+    reader := bufio.NewReader(cl.conn)
+
+    for {
+        msg, err := reader.ReadString('\n')
+        if err != nil {
+            // TODO: handle disconnection
+            break
+        }
+
+        broadcast(cl, msg)
+    }
+}
+
+// send message to all clients
+func broadcast(cl client, msg string) {
+    for _, v := range clients {
+        if v != cl {
+            v.conn.Write( []byte(cl.name + ": " + msg) )
+        }
+    }
 }
 
 // remove a client from clients slice
