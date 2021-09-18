@@ -54,11 +54,14 @@ func handleConnection(conn net.Conn) {
     
     clients = append(clients, cl) // add client to slice of all clients
     
+    broadcast(cl, name + " has connected.\n") // tell everyone a new user joined
+
     recieveMessages(cl)
 
     // Close connection and remove client from slice
     conn.Close()
     removeClient(cl)
+    broadcast(cl, name + " has disconnected.\n")
 }
 
 // recieve messages from client
@@ -72,17 +75,22 @@ func recieveMessages(cl client) {
             break
         }
 
-        broadcast(cl, msg)
+        broadcastMsg(cl, msg)
     }
 }
 
-// send message to all clients
+// send msg to all clients except cl
 func broadcast(cl client, msg string) {
     for _, v := range clients {
         if v != cl {
-            v.conn.Write( []byte(cl.name + ": " + msg) )
+            v.conn.Write( []byte(msg) )
         }
     }
+}
+
+// broadcast "name: msg"
+func broadcastMsg(cl client, msg string) {
+    broadcast(cl, cl.name + ": " + msg)
 }
 
 // remove a client from clients slice
